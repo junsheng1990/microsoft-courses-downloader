@@ -486,6 +486,11 @@ class CourseProcessor:
         print(f"\nFetching learning paths from: {course_url}")
         print("=" * 80)
 
+        # Fetch course title to use as directory name
+        course_title = self._fetch_course_title(course_url)
+        course_dir_name = self._sanitize_dir_name(course_title)
+        course_output_dir = os.path.join(output_base, course_dir_name)
+
         catalog = self.catalog_service.fetch()
         if not catalog:
             print("Failed to fetch catalog.")
@@ -499,15 +504,27 @@ class CourseProcessor:
 
         self._display_learning_paths(paths)
 
-        os.makedirs(output_base, exist_ok=True)
+        os.makedirs(course_output_dir, exist_ok=True)
+        print(f"\n  Course: {course_title}")
+        print(f"  Output directory: {course_output_dir}/")
 
         for i, path in enumerate(paths, 1):
-            self._process_learning_path(path, i, output_base)
+            self._process_learning_path(path, i, course_output_dir)
 
         print(f"\n{'=' * 80}")
-        print(f"All done! Output is in '{output_base}/'")
+        print(f"All done! Output is in '{course_output_dir}/'")
 
         return paths
+
+    def _fetch_course_title(self, course_url: str) -> str:
+        """Fetch the course page and extract the h1 title."""
+        try:
+            page_content = self.content_service.fetch_page(course_url)
+            return page_content.title
+        except Exception as e:
+            print(f"Warning: Could not fetch course title: {e}")
+            # Fallback to extracting from URL
+            return course_url.rstrip("/").split("/")[-1]
 
     def _display_learning_paths(self, paths: list[str]) -> None:
         """Display the found learning paths."""
