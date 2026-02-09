@@ -101,7 +101,7 @@ output/
 └── ...
 ```
 
-> 💡 **Tip**: Take a look at the `/output` directory to see the generated HTML and PDF files for the **"Develop AI solutions in Azure" (AI-102)** course and check how they look!
+> 💡 **Tip**: Take a look at the `/output` directory to see the generated HTML and PDF files for the **"Develop AI solutions in Azure" (AI-102)** and **"Introduction to Cloud Infrastructure (AZ-900)"** courses and check how they look!
 
 ---
 
