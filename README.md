@@ -1,4 +1,4 @@
-# Azure Training Extract
+# Microsoft Courses Downloader
 
 > *"Because clicking through 47 tiny units isn't learning—it's a workout for your mouse finger."*
 
@@ -155,3 +155,4 @@ OUTPUT_BASE_DIR = "output"
 ## License
 
 MIT License
+
