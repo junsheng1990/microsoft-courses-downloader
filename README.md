@@ -135,7 +135,10 @@ playwright install chromium
    python main.py
    ```
 
-3. **Enter a course URL** when prompted, or press Enter to use the default (AI-102T00):
+3. Optional command-line arguments:
+* `--remove-html`: will delete the HTML file(s) after they have been converted to PDF.
+
+4. **Enter a course URL** when prompted, or press Enter to use the default (AI-102T00):
 
    ```
    Enter the Microsoft Learn course URL (press Enter to use default: https://learn.microsoft.com/en-us/training/courses/ai-102t00):

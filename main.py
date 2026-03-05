@@ -7,6 +7,7 @@ import os
 import re
 import requests
 import asyncio
+import argparse
 from dataclasses import dataclass
 from typing import Optional
 from bs4 import BeautifulSoup
@@ -480,7 +481,7 @@ class CourseProcessor:
         self.pdf_generator = pdf_generator or PdfGenerator()
 
     def process_course(
-        self, course_url: str, output_base: str = OUTPUT_BASE_DIR
+        self, course_url: str, remove_html: bool = False, output_base: str = OUTPUT_BASE_DIR
     ) -> list[str]:
         """Process a course and generate all output files."""
         print(f"\nFetching learning paths from: {course_url}")
@@ -509,7 +510,7 @@ class CourseProcessor:
         print(f"  Output directory: {course_output_dir}/")
 
         for i, path in enumerate(paths, 1):
-            self._process_learning_path(path, i, course_output_dir)
+            self._process_learning_path(path, i, course_output_dir, remove_html)
 
         print(f"\n{'=' * 80}")
         print(f"All done! Output is in '{course_output_dir}/'")
@@ -535,7 +536,7 @@ class CourseProcessor:
         print("Creating directories and generating content...")
 
     def _process_learning_path(
-        self, path_url: str, index: int, output_base: str
+        self, path_url: str, index: int, output_base: str, remove_html: bool
     ) -> None:
         """Process a single learning path."""
         print(f"\nFetching learning path page: {path_url}")
@@ -553,11 +554,11 @@ class CourseProcessor:
 
         if modules:
             for j, module_url in enumerate(modules, 1):
-                self._process_module(module_url, j, path_dir)
+                self._process_module(module_url, j, path_dir, remove_html)
         else:
             print(f"    (No modules found for this learning path)")
 
-    def _process_module(self, module_url: str, index: int, path_dir: str) -> None:
+    def _process_module(self, module_url: str, index: int, path_dir: str, remove_html: bool) -> None:
         """Process a single module."""
         module_name = module_url.rstrip("/").split("/")[-1]
         print(f"\n    Module: {module_name}")
@@ -580,6 +581,8 @@ class CourseProcessor:
         pdf_file = self.pdf_generator.generate(html_file)
         if pdf_file:
             print(f"      Generated: {pdf_file}")
+            if remove_html:
+                self._delete_html_file(html_file)
 
     @staticmethod
     def _sanitize_dir_name(name: str) -> str:
@@ -591,6 +594,13 @@ class CourseProcessor:
         # Limit length
         return name[:100]
 
+    @staticmethod
+    def _delete_html_file(html_file_path: str) -> None:
+        try:
+            os.remove(html_file_path)
+            print(f"      Deleted HTML file {html_file_path}")
+        except Exception as e:
+            print(f"      Warning: Failed to remove HTML file: {e}")
 
 # =============================================================================
 # User Input
@@ -613,9 +623,12 @@ def get_course_url_from_user(default_url: str = DEFAULT_COURSE_URL) -> str:
 
 def main() -> list[str]:
     """Main entry point."""
+    parser = argparse.ArgumentParser(description="Microsoft Courses Downloader.")
+    parser.add_argument("--remove-html", action="store_true", help="Remove the HTML files after downloading.")
+    args = parser.parse_args()
     course_url = get_course_url_from_user()
     processor = CourseProcessor()
-    return processor.process_course(course_url)
+    return processor.process_course(course_url, args.remove_html)
 
 
 if __name__ == "__main__":
